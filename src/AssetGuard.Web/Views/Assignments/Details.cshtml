@@ -1,0 +1,16 @@
+@model Assignment
+@{ ViewData["Title"] = "Assignment Details"; }
+<div class="page-header"><h1>Assignment Details</h1></div>
+<div class="card table-card"><div class="card-body">
+<dl class="row mb-0">
+    <dt class="col-sm-3">Asset Tag</dt><dd class="col-sm-9">@Model.AssetTag</dd>
+    <dt class="col-sm-3">Device</dt><dd class="col-sm-9">@Model.DeviceName</dd>
+    <dt class="col-sm-3">Employee</dt><dd class="col-sm-9">@Model.EmployeeName</dd>
+    <dt class="col-sm-3">Department</dt><dd class="col-sm-9">@Model.Department</dd>
+    <dt class="col-sm-3">Assigned Date</dt><dd class="col-sm-9">@Model.AssignedDate.ToString("MMM d, yyyy")</dd>
+    <dt class="col-sm-3">Return Date</dt><dd class="col-sm-9">@(Model.ReturnDate?.ToString("MMM d, yyyy") ?? "—")</dd>
+    <dt class="col-sm-3">Status</dt><dd class="col-sm-9"><partial name="_StatusBadge" model="@Model.Status" /></dd>
+    <dt class="col-sm-3">Assignment Note</dt><dd class="col-sm-9">@(Model.AssignmentNote ?? "—")</dd>
+    <dt class="col-sm-3">Return Note</dt><dd class="col-sm-9">@(Model.ReturnNote ?? "—")</dd>
+</dl></div>
+<div class="card-footer bg-white"><a asp-action="Index" class="btn btn-outline-secondary">Back</a></div></div>

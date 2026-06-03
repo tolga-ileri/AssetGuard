@@ -1,0 +1,44 @@
+@model AssetGuard.Core.Common.IPagedResult
+@{
+    var filter = ViewBag.Filter as ListFilterViewModel ?? new ListFilterViewModel();
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-3">
+        <ul class="pagination justify-content-center mb-0">
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link" asp-action="@action" asp-controller="@controller"
+                   asp-route-page="@(Model.Page - 1)"
+                   asp-route-searchTerm="@filter.SearchTerm"
+                   asp-route-status="@filter.Status"
+                   asp-route-deviceType="@filter.DeviceType"
+                   asp-route-department="@filter.Department">Previous</a>
+            </li>
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" asp-action="@action" asp-controller="@controller"
+                       asp-route-page="@i"
+                       asp-route-searchTerm="@filter.SearchTerm"
+                       asp-route-status="@filter.Status"
+                       asp-route-deviceType="@filter.DeviceType"
+                       asp-route-department="@filter.Department">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link" asp-action="@action" asp-controller="@controller"
+                   asp-route-page="@(Model.Page + 1)"
+                   asp-route-searchTerm="@filter.SearchTerm"
+                   asp-route-status="@filter.Status"
+                   asp-route-deviceType="@filter.DeviceType"
+                   asp-route-department="@filter.Department">Next</a>
+            </li>
+        </ul>
+        <p class="text-center text-muted small mt-2">
+            Showing page @Model.Page of @Model.TotalPages (@Model.TotalCount total records)
+        </p>
+    </nav>
+}

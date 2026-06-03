@@ -1,0 +1,36 @@
+@model IReadOnlyList<AssetGuard.Core.DTOs.ActivityTimelineItem>
+@{
+    var emptyMessage = ViewBag.TimelineEmptyMessage as string ?? "No activity recorded yet.";
+}
+
+@if (Model.Any())
+{
+    <div class="activity-timeline">
+        @foreach (var item in Model)
+        {
+            <div class="timeline-item">
+                <div class="timeline-marker bg-@item.ColorClass">
+                    <i class="bi @item.Icon"></i>
+                </div>
+                <div class="timeline-content enterprise-card">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <span class="badge bg-@item.ColorClass bg-opacity-10 text-@item.ColorClass border border-@item.ColorClass border-opacity-25 me-2">@item.Category</span>
+                            <strong class="timeline-title">@item.Title</strong>
+                        </div>
+                        <time class="text-muted small text-nowrap">@item.OccurredAt.ToString("MMM d, yyyy HH:mm")</time>
+                    </div>
+                    <p class="timeline-desc mb-0 mt-2">@item.Description</p>
+                    @if (!string.IsNullOrEmpty(item.Actor))
+                    {
+                        <div class="text-muted small mt-2"><i class="bi bi-person"></i> @item.Actor</div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-clock-history"}, {"EmptyTitle","No activity"}, {"EmptyMessage", emptyMessage} }' />
+}

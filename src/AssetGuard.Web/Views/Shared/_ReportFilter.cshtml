@@ -1,0 +1,83 @@
+@model AssetGuard.Web.ViewModels.ReportFilterViewModel
+@{
+    var showDepartment = ViewBag.ShowDepartment as bool? ?? false;
+    var showWarrantyStatus = ViewBag.ShowWarrantyStatus as bool? ?? false;
+    var showDateRange = ViewBag.ShowDateRange as bool? ?? true;
+    var exportAction = ViewBag.ExportAction as string ?? "Export";
+    var exportPdfAction = exportAction + "Pdf";
+    var departments = ViewBag.Departments as IReadOnlyList<string> ?? Array.Empty<string>();
+    var deviceTypes = DeviceTypes.All;
+    var deviceStatuses = DeviceStatus.All;
+}
+
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        @if (showDateRange)
+        {
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Date From</label>
+                <input type="date" name="dateFrom" value="@Model.DateFrom?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Date To</label>
+                <input type="date" name="dateTo" value="@Model.DateTo?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+        }
+        @if (showDepartment)
+        {
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Department</label>
+                <select name="department" class="form-select">
+                    <option value="">All</option>
+                    @foreach (var d in departments) { <option value="@d" selected="@(Model.Department == d)">@d</option> }
+                </select>
+            </div>
+        }
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Device Type</label>
+            <select name="deviceType" class="form-select">
+                <option value="">All Types</option>
+                @foreach (var t in deviceTypes) { <option value="@t" selected="@(Model.DeviceType == t)">@t</option> }
+            </select>
+        </div>
+        @if (showWarrantyStatus)
+        {
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Warranty Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="Active" selected="@(Model.Status == "Active")">Active</option>
+                    <option value="Expiring30" selected="@(Model.Status == "Expiring30")">Expiring (30d)</option>
+                    <option value="Expired" selected="@(Model.Status == "Expired")">Expired</option>
+                </select>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Device Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    @foreach (var s in deviceStatuses) { <option value="@s" selected="@(Model.Status == s)">@s</option> }
+                </select>
+            </div>
+        }
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-outline-primary flex-grow-1"><i class="bi bi-funnel"></i> Apply</button>
+            <a asp-action="@exportAction" asp-all-route-data="@(new Dictionary<string, string?> {
+                ["dateFrom"] = Model.DateFrom?.ToString("yyyy-MM-dd"),
+                ["dateTo"] = Model.DateTo?.ToString("yyyy-MM-dd"),
+                ["department"] = Model.Department,
+                ["deviceType"] = Model.DeviceType,
+                ["status"] = Model.Status
+            })" class="btn btn-success" title="Export to Excel"><i class="bi bi-file-earmark-excel"></i></a>
+            <a asp-action="@exportPdfAction" asp-all-route-data="@(new Dictionary<string, string?> {
+                ["dateFrom"] = Model.DateFrom?.ToString("yyyy-MM-dd"),
+                ["dateTo"] = Model.DateTo?.ToString("yyyy-MM-dd"),
+                ["department"] = Model.Department,
+                ["deviceType"] = Model.DeviceType,
+                ["status"] = Model.Status
+            })" class="btn btn-danger" title="Export to PDF"><i class="bi bi-file-earmark-pdf"></i></a>
+        </div>
+    </form>
+</div>

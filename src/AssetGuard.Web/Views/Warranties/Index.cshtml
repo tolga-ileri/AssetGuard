@@ -1,0 +1,119 @@
+@model WarrantyIndexViewModel
+@using AssetGuard.Core.Common
+@{
+    ViewData["Title"] = "Warranty Tracking";
+    var filter = Model.Filter;
+    ViewBag.Filter = filter;
+}
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Warranty Tracking</h1>
+        <p class="text-muted mb-0 small">Monitor device warranty coverage and expiry</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Warranty</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a asp-action="Index" asp-route-status="@WarrantyFilterStatus.Active" class="text-decoration-none">
+            <div class="card stat-card h-100 @(filter.Status == WarrantyFilterStatus.Active ? "border-primary border-2" : "")">
+                <div class="card-body">
+                    <div class="stat-label">Active Warranties</div>
+                    <div class="stat-value text-success">@Model.Summary.Active</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-action="Index" asp-route-status="@WarrantyFilterStatus.Expiring30" class="text-decoration-none">
+            <div class="card stat-card h-100 @(filter.Status == WarrantyFilterStatus.Expiring30 ? "border-warning border-2" : "")">
+                <div class="card-body">
+                    <div class="stat-label">Expiring in 30 Days</div>
+                    <div class="stat-value text-warning">@Model.Summary.Expiring30</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a asp-action="Index" asp-route-status="@WarrantyFilterStatus.Expired" class="text-decoration-none">
+            <div class="card stat-card h-100 @(filter.Status == WarrantyFilterStatus.Expired ? "border-secondary border-2" : "")">
+                <div class="card-body">
+                    <div class="stat-label">Expired</div>
+                    <div class="stat-value text-secondary">@Model.Summary.Expired</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small text-muted">Search</label>
+            <input type="text" name="searchTerm" value="@filter.SearchTerm" class="form-control" placeholder="Device, asset tag, or provider..." />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small text-muted">Warranty Status</label>
+            <select name="status" class="form-select">
+                <option value="">All Warranties</option>
+                <option value="@WarrantyFilterStatus.Active" selected="@(filter.Status == WarrantyFilterStatus.Active)">Active</option>
+                <option value="@WarrantyFilterStatus.Expiring30" selected="@(filter.Status == WarrantyFilterStatus.Expiring30)">Expiring in 30 Days</option>
+                <option value="@WarrantyFilterStatus.Expired" selected="@(filter.Status == WarrantyFilterStatus.Expired)">Expired</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="card table-card">
+    @if (Model.Warranties.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Asset Tag</th>
+                        <th>Device</th>
+                        <th>Type</th>
+                        <th>Provider</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Warranties.Items)
+                    {
+                        var daysLeft = (item.EndDate.Date - DateTime.Today).Days;
+                        <tr class="@(daysLeft <= 30 && daysLeft >= 0 && item.IsActive ? "table-warning" : "")">
+                            <td><strong>@item.AssetTag</strong></td>
+                            <td>
+                                <a asp-controller="Devices" asp-action="Details" asp-route-id="@item.DeviceId">@item.DeviceName</a>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@item.DeviceType</span></td>
+                            <td>@item.Provider</td>
+                            <td>@item.StartDate.ToString("MMM d, yyyy")</td>
+                            <td>@item.EndDate.ToString("MMM d, yyyy")</td>
+                            <td><partial name="_WarrantyBadge" model="@item" /></td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-shield-check"}, {"EmptyTitle","No warranties match your filters"}, {"EmptyActionUrl", Url.Action("Create")}, {"EmptyActionText","Add Warranty"} }' />
+        </div>
+    }
+</div>
+<partial name="_Pagination" model="@Model.Warranties" />

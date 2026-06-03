@@ -1,0 +1,29 @@
+@model Warranty
+@{ ViewData["Title"] = "Warranty Details"; }
+
+<div class="page-header">
+    <h1>Warranty Details</h1>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item"><a asp-action="Index">Warranties</a></li><li class="breadcrumb-item active">@Model.Provider</li></ol></nav>
+</div>
+
+<div class="card table-card">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Device</dt>
+            <dd class="col-sm-9">
+                <a asp-controller="Devices" asp-action="Details" asp-route-id="@Model.DeviceId">@Model.DeviceName</a>
+                <span class="text-muted">(@Model.AssetTag)</span>
+            </dd>
+            <dt class="col-sm-3">Device Type</dt><dd class="col-sm-9">@Model.DeviceType</dd>
+            <dt class="col-sm-3">Provider</dt><dd class="col-sm-9">@Model.Provider</dd>
+            <dt class="col-sm-3">Coverage Period</dt>
+            <dd class="col-sm-9">@Model.StartDate.ToString("MMM d, yyyy") — @Model.EndDate.ToString("MMM d, yyyy")</dd>
+            <dt class="col-sm-3">Status</dt><dd class="col-sm-9"><partial name="_WarrantyBadge" model="@Model" /></dd>
+            <dt class="col-sm-3">Coverage Details</dt><dd class="col-sm-9">@(Model.CoverageDetails ?? "—")</dd>
+        </dl>
+    </div>
+    <div class="card-footer bg-white d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+    </div>
+</div>

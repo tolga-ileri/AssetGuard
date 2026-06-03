@@ -1,0 +1,40 @@
+@model MaintenanceCostReportViewModel
+@{ ViewData["Title"] = "Maintenance Cost Report"; ViewBag.ExportAction = "ExportMaintenanceCost"; ViewBag.ShowDepartment = false; }
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Maintenance Cost Report</h1>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item"><a asp-action="Index">Reports</a></li><li class="breadcrumb-item active">Maintenance Cost</li></ol></nav>
+    </div>
+    <div class="text-end">
+        <div class="stat-label">Total Cost</div>
+        <div class="stat-value text-primary">@Model.Result.TotalCost.ToString("C2")</div>
+    </div>
+</div>
+
+<partial name="_ReportFilter" model="Model.Filter" />
+
+<div class="card table-card">
+    @if (Model.Result.Rows.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Date</th><th>Asset Tag</th><th>Device</th><th>Type</th><th>Maintenance</th><th>Description</th><th class="text-end">Cost</th><th>Performed By</th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model.Result.Rows)
+                    {
+                        <tr>
+                            <td>@r.MaintenanceDate.ToString("MMM d, yyyy")</td><td><strong>@r.AssetTag</strong></td>
+                            <td>@r.DeviceName</td><td>@r.DeviceType</td>
+                            <td><span class="badge bg-info text-dark">@r.MaintenanceType</span></td>
+                            <td class="small">@r.Description</td>
+                            <td class="text-end">@r.Cost.ToString("C2")</td><td>@r.PerformedBy</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot><tr class="table-light fw-bold"><td colspan="6" class="text-end">Total</td><td class="text-end">@Model.Result.TotalCost.ToString("C2")</td><td></td></tr></tfoot>
+            </table>
+        </div>
+    }
+    else { <div class="card-body"><partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-tools"}, {"EmptyTitle","No maintenance records found"} }' /></div> }
+</div>

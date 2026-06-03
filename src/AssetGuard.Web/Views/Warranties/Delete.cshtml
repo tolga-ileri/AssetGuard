@@ -1,0 +1,20 @@
+@model Warranty
+@{ ViewData["Title"] = "Delete Warranty"; }
+
+<div class="page-header"><h1>Delete Warranty</h1></div>
+
+<div class="card table-card border-danger">
+    <div class="card-body">
+        <div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> This action cannot be undone.</div>
+        <p>Delete warranty for <strong>@Model.DeviceName</strong> (@Model.Provider)?</p>
+        <form asp-action="Delete" method="post" class="mt-3"
+              data-confirm="Permanently delete this warranty record?"
+              data-confirm-title="Delete Warranty"
+              data-confirm-btn="Delete">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

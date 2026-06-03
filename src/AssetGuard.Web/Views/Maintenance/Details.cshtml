@@ -1,0 +1,13 @@
+@model MaintenanceRecord
+@{ ViewData["Title"] = "Maintenance Details"; }
+<div class="page-header"><h1>Maintenance Details</h1></div>
+<div class="card table-card"><div class="card-body">
+<dl class="row mb-0">
+    <dt class="col-sm-3">Device</dt><dd class="col-sm-9">@Model.DeviceName (@Model.AssetTag)</dd>
+    <dt class="col-sm-3">Date</dt><dd class="col-sm-9">@Model.MaintenanceDate.ToString("MMM d, yyyy")</dd>
+    <dt class="col-sm-3">Type</dt><dd class="col-sm-9">@Model.MaintenanceType</dd>
+    <dt class="col-sm-3">Cost</dt><dd class="col-sm-9">@Model.Cost.ToString("C")</dd>
+    <dt class="col-sm-3">Performed By</dt><dd class="col-sm-9">@Model.PerformedBy</dd>
+    <dt class="col-sm-3">Next Maintenance</dt><dd class="col-sm-9">@(Model.NextMaintenanceDate?.ToString("MMM d, yyyy") ?? "—")</dd>
+    <dt class="col-sm-3">Description</dt><dd class="col-sm-9">@Model.Description</dd>
+</dl></div></div>

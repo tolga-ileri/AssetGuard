@@ -1,0 +1,63 @@
+@model UserIndexViewModel
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>User Management</h1>
+        <p class="text-muted mb-0 small">Admin-only access · No public registration</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-person-plus"></i> Create User</a>
+</div>
+
+<div class="enterprise-card">
+    @if (Model.Users.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr class="@(!user.IsActive ? "table-secondary" : "")">
+                            <td><strong>@user.UserName</strong></td>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td><span class="badge bg-light text-dark border">@user.Role</span></td>
+                            <td>
+                                @if (user.IsActive) { <span class="badge badge-active">Active</span> }
+                                else { <span class="badge bg-secondary">Inactive</span> }
+                            </td>
+                            <td class="text-muted small">@(user.LastLoginAt?.ToString("yyyy-MM-dd HH:mm") ?? "—")</td>
+                            <td class="text-end">
+                                @if (user.IsActive)
+                                {
+                                    <a asp-action="Deactivate" asp-route-id="@user.Id" class="btn btn-sm btn-outline-warning" title="Deactivate">
+                                        <i class="bi bi-person-x"></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-people"}, {"EmptyTitle","No users found"}, {"EmptyActionUrl", Url.Action("Create")}, {"EmptyActionText","Create User"} }' />
+        </div>
+    }
+</div>

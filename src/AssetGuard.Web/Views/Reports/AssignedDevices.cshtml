@@ -1,0 +1,36 @@
+@model AssignedDevicesReportViewModel
+@{ ViewData["Title"] = "Assigned Devices Report"; ViewBag.Departments = Model.Departments; ViewBag.ExportAction = "ExportAssignedDevices"; ViewBag.ShowDepartment = true; ViewBag.ShowDateRange = false; }
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Assigned Devices Report</h1>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item"><a asp-action="Index">Reports</a></li><li class="breadcrumb-item active">Assigned Devices</li></ol></nav>
+    </div>
+    <span class="badge bg-light text-dark border">@Model.Rows.Count records</span>
+</div>
+
+<partial name="_ReportFilter" model="Model.Filter" />
+
+<div class="card table-card">
+    @if (Model.Rows.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Asset Tag</th><th>Device</th><th>Type</th><th>Employee</th><th>Department</th><th>Assigned</th><th>Status</th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr>
+                            <td><strong>@r.AssetTag</strong></td><td>@r.DeviceName</td>
+                            <td><span class="badge bg-light text-dark border">@r.DeviceType</span></td>
+                            <td>@r.EmployeeName</td><td>@r.Department</td>
+                            <td>@r.AssignedDate.ToString("MMM d, yyyy")</td>
+                            <td><partial name="_StatusBadge" model="@r.Status" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else { <div class="card-body"><partial name="_EmptyState" /></div> }
+</div>

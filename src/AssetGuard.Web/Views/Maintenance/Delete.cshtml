@@ -1,0 +1,20 @@
+@model MaintenanceRecord
+@{ ViewData["Title"] = "Delete Maintenance Record"; }
+
+<div class="page-header"><h1>Delete Maintenance Record</h1></div>
+
+<div class="card table-card border-danger">
+    <div class="card-body">
+        <div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> This action cannot be undone.</div>
+        <p>Delete maintenance record for <strong>@Model.DeviceName</strong> on @Model.MaintenanceDate.ToString("MMM d, yyyy")?</p>
+        <form asp-action="Delete" method="post" class="mt-3"
+              data-confirm="Permanently delete this maintenance record?"
+              data-confirm-title="Delete Maintenance Record"
+              data-confirm-btn="Delete">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

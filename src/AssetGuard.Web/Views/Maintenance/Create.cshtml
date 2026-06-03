@@ -1,0 +1,25 @@
+@model MaintenanceRecord
+@{
+    ViewData["Title"] = ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "Log Maintenance" : "Edit Maintenance";
+    var devices = ViewBag.Devices as SelectList;
+    var types = ViewBag.MaintenanceTypes as string[] ?? MaintenanceTypes.All;
+}
+
+<div class="page-header"><h1>@ViewData["Title"]</h1></div>
+<div class="card table-card"><div class="card-body">
+<form asp-action="@ViewContext.RouteData.Values["action"]" method="post">
+@Html.AntiForgeryToken()
+@if (Model.Id > 0) { <input type="hidden" asp-for="Id" /> }
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="row g-3">
+    <div class="col-md-6"><label asp-for="DeviceId" class="form-label"></label><select asp-for="DeviceId" asp-items="devices" class="form-select"><option value="">-- Select Device --</option></select></div>
+    <div class="col-md-3"><label asp-for="MaintenanceDate" class="form-label"></label><input asp-for="MaintenanceDate" class="form-control" type="date" /></div>
+    <div class="col-md-3"><label asp-for="MaintenanceType" class="form-label"></label><select asp-for="MaintenanceType" class="form-select">@foreach (var t in types) { <option value="@t">@t</option> }</select></div>
+    <div class="col-md-3"><label asp-for="Cost" class="form-label"></label><input asp-for="Cost" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="PerformedBy" class="form-label"></label><input asp-for="PerformedBy" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="NextMaintenanceDate" class="form-label"></label><input asp-for="NextMaintenanceDate" class="form-control" type="date" /></div>
+    <div class="col-12"><label asp-for="Description" class="form-label"></label><textarea asp-for="Description" class="form-control" rows="3"></textarea></div>
+</div>
+<div class="mt-4"><button type="submit" class="btn btn-primary">Save</button><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a></div>
+</form></div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

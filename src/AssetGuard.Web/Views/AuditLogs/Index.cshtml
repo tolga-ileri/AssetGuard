@@ -1,0 +1,97 @@
+@model AuditLogIndexViewModel
+@{
+    ViewData["Title"] = "Audit Logs";
+    var filter = Model.Filter;
+    var actionTypes = ViewBag.ActionTypes as string[] ?? [];
+    var entityNames = ViewBag.EntityNames as string[] ?? [];
+}
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Audit Logs</h1>
+        <p class="text-muted mb-0 small">Track all system changes and user activity</p>
+    </div>
+    <a asp-action="Export" asp-all-route-data="@(new Dictionary<string, string?> {
+        ["userName"] = filter.UserName, ["actionType"] = filter.ActionType,
+        ["entityName"] = filter.EntityName, ["dateFrom"] = filter.DateFrom?.ToString("yyyy-MM-dd"),
+        ["dateTo"] = filter.DateTo?.ToString("yyyy-MM-dd"), ["searchTerm"] = filter.SearchTerm
+    })" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-excel"></i> Export Excel</a>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Date From</label>
+            <input type="date" name="dateFrom" value="@filter.DateFrom?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Date To</label>
+            <input type="date" name="dateTo" value="@filter.DateTo?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Username</label>
+            <input type="text" name="userName" value="@filter.UserName" class="form-control" placeholder="admin" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Action Type</label>
+            <select name="actionType" class="form-select">
+                <option value="">All Actions</option>
+                @foreach (var a in actionTypes) { <option value="@a" selected="@(filter.ActionType == a)">@a</option> }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-muted">Entity</label>
+            <select name="entityName" class="form-select">
+                <option value="">All Entities</option>
+                @foreach (var e in entityNames) { <option value="@e" selected="@(filter.EntityName == e)">@e</option> }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="card table-card">
+    @if (Model.Logs.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle mb-0">
+                <thead><tr><th>Timestamp (UTC)</th><th>User</th><th>Action</th><th>Entity</th><th>Description</th></tr></thead>
+                <tbody>
+                    @foreach (var log in Model.Logs.Items)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td><i class="bi bi-person-circle text-muted"></i> @log.UserName</td>
+                            <td><span class="badge bg-secondary">@log.ActionType</span></td>
+                            <td>@log.EntityName @(log.EntityId.HasValue ? $"#{log.EntityId}" : "")</td>
+                            <td class="small">@log.Description</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body"><partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-journal-text"}, {"EmptyTitle","No audit logs found"} }' /></div>
+    }
+</div>
+
+@if (Model.Logs.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            @for (var i = 1; i <= Model.Logs.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Logs.Page ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i"
+                       asp-route-userName="@filter.UserName" asp-route-actionType="@filter.ActionType"
+                       asp-route-entityName="@filter.EntityName" asp-route-dateFrom="@filter.DateFrom?.ToString("yyyy-MM-dd")"
+                       asp-route-dateTo="@filter.DateTo?.ToString("yyyy-MM-dd")">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

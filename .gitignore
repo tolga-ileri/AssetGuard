@@ -1,0 +1,49 @@
+# Build output
+**/bin/
+**/obj/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Local configuration (copy from appsettings.Development.example.json)
+**/appsettings.Development.json
+
+# Secrets and environment
+.env
+.env.*
+!.env.example
+
+# Database files
+*.db
+*.mdf
+*.ldf
+*.ndf
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+
+# NuGet
+*.nupkg
+packages/
+
+# Publish
+publish/
+out/
+
+# Rider
+.idea/
+
+# User-specific
+*.rsuser
+
+# Test results
+TestResults/

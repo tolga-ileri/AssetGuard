@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="page-header">
+    <h1>Reports</h1>
+    <p class="text-muted">Generate and export enterprise asset reports to Excel</p>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6 col-xl-4">
+        <div class="card table-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-laptop"></i></div>
+                    <h5 class="mb-0">Inventory Report</h5>
+                </div>
+                <p class="text-muted small">Full device inventory with status, type, and purchase date filters.</p>
+                <a asp-action="Inventory" class="btn btn-outline-primary btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="card table-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info"><i class="bi bi-person-check"></i></div>
+                    <h5 class="mb-0">Assigned Devices</h5>
+                </div>
+                <p class="text-muted small">Currently assigned devices with employee and department details.</p>
+                <a asp-action="AssignedDevices" class="btn btn-outline-primary btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="card table-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-currency-dollar"></i></div>
+                    <h5 class="mb-0">Maintenance Cost</h5>
+                </div>
+                <p class="text-muted small">Maintenance spending with cost totals by date range and device type.</p>
+                <a asp-action="MaintenanceCost" class="btn btn-outline-primary btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="card table-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-shield-exclamation"></i></div>
+                    <h5 class="mb-0">Warranty Expiration</h5>
+                </div>
+                <p class="text-muted small">Warranties by expiry date with active, expiring, and expired status.</p>
+                <a asp-action="WarrantyExpiration" class="btn btn-outline-primary btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="card table-card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-building"></i></div>
+                    <h5 class="mb-0">Department Devices</h5>
+                </div>
+                <p class="text-muted small">Devices assigned to employees grouped by department.</p>
+                <a asp-action="DepartmentDevices" class="btn btn-outline-primary btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+</div>

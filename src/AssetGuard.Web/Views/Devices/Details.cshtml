@@ -1,0 +1,215 @@
+@model DeviceDetailViewModel
+@{
+    ViewData["Title"] = Model.Device.DeviceName;
+    var d = Model.Device;
+}
+
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <h1 class="mb-0">@d.DeviceName</h1>
+            <partial name="_StatusBadge" model="@d.Status" />
+        </div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Devices</a></li>
+                <li class="breadcrumb-item active">@d.AssetTag</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-action="Edit" asp-route-id="@d.Id" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+        @if (d.Status == DeviceStatus.Available)
+        {
+            <a asp-controller="Assignments" asp-action="Create" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-left-right"></i> Assign</a>
+        }
+        @if (Model.HasActiveAssignment)
+        {
+            var active = Model.AssignmentHistory.FirstOrDefault(a => a.Status == AssignmentStatus.Active);
+            if (active != null)
+            {
+                <a asp-controller="Assignments" asp-action="Return" asp-route-id="@active.Id" class="btn btn-outline-warning btn-sm"><i class="bi bi-arrow-return-left"></i> Return</a>
+            }
+        }
+        <a asp-controller="Maintenance" asp-action="Create" class="btn btn-outline-secondary btn-sm"><i class="bi bi-tools"></i> Log Maintenance</a>
+        <a asp-action="Delete" asp-route-id="@d.Id" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Delete</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Device Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="info-field"><label>Asset Tag</label><div class="info-value fw-bold">@d.AssetTag</div></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-field"><label>Serial Number</label><div class="info-value">@d.SerialNumber</div></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-field"><label>Device Type</label><div class="info-value"><span class="badge bg-light text-dark border">@d.DeviceType</span></div></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-field"><label>Brand / Model</label><div class="info-value">@d.Brand @d.Model</div></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-field"><label>Purchase Date</label><div class="info-value">@d.PurchaseDate.ToString("MMM d, yyyy")</div></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-field"><label>Warranty End</label><div class="info-value">@(d.WarrantyEndDate?.ToString("MMM d, yyyy") ?? "—")</div></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-field"><label>Location</label><div class="info-value">@(d.Location ?? "—")</div></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-field"><label>Last Updated</label><div class="info-value">@d.UpdatedAt.ToString("MMM d, yyyy")</div></div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(d.Notes))
+                    {
+                        <div class="col-12">
+                            <div class="info-field"><label>Notes</label><div class="info-value">@d.Notes</div></div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="enterprise-card h-100 text-center">
+            <div class="card-header-bar">
+                <h5 class="mb-0"><i class="bi bi-qr-code"></i> Asset QR Code</h5>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <img src="@Url.Action("QrCode", new { id = d.Id })" alt="QR Code for @d.AssetTag" class="qr-image mb-3" loading="lazy" />
+                <p class="text-muted small mb-2">Scan to open this device record</p>
+                <a href="@Url.Action("QrCode", new { id = d.Id })" download="AssetGuard-@d.AssetTag-qr.png" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-download"></i> Download QR
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs enterprise-tabs mb-3" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-timeline" type="button"><i class="bi bi-clock-history"></i> Activity Timeline</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-assignments" type="button"><i class="bi bi-person-check"></i> Assignments</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-maintenance" type="button"><i class="bi bi-tools"></i> Maintenance</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-warranties" type="button"><i class="bi bi-shield-check"></i> Warranties</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-audit" type="button"><i class="bi bi-journal-text"></i> Audit Feed</button></li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="tab-timeline">
+        <div class="enterprise-card">
+            <div class="card-body">
+                <partial name="_ActivityTimeline" model="Model.Timeline" />
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-assignments">
+        <div class="enterprise-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Employee</th><th>Department</th><th>Assigned</th><th>Returned</th><th>Status</th><th>Note</th></tr></thead>
+                    <tbody>
+                        @foreach (var a in Model.AssignmentHistory)
+                        {
+                            <tr>
+                                <td><a asp-controller="Employees" asp-action="Details" asp-route-id="@a.EmployeeId">@a.EmployeeName</a></td>
+                                <td><span class="badge bg-light text-dark border">@a.Department</span></td>
+                                <td>@a.AssignedDate.ToString("MMM d, yyyy")</td>
+                                <td>@(a.ReturnDate?.ToString("MMM d, yyyy") ?? "—")</td>
+                                <td><partial name="_StatusBadge" model="@a.Status" /></td>
+                                <td class="text-muted small">@(a.AssignmentNote ?? "—")</td>
+                            </tr>
+                        }
+                        @if (!Model.AssignmentHistory.Any()) { <tr><td colspan="6" class="text-center text-muted py-4">No assignment history.</td></tr> }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-maintenance">
+        <div class="enterprise-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Cost</th><th>Performed By</th><th>Next Due</th><th></th></tr></thead>
+                    <tbody>
+                        @foreach (var m in Model.MaintenanceHistory)
+                        {
+                            <tr>
+                                <td>@m.MaintenanceDate.ToString("MMM d, yyyy")</td>
+                                <td><span class="badge bg-info text-dark">@m.MaintenanceType</span></td>
+                                <td>@m.Description</td>
+                                <td>@m.Cost.ToString("C")</td>
+                                <td>@m.PerformedBy</td>
+                                <td>@(m.NextMaintenanceDate?.ToString("MMM d, yyyy") ?? "—")</td>
+                                <td><a asp-controller="Maintenance" asp-action="Details" asp-route-id="@m.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a></td>
+                            </tr>
+                        }
+                        @if (!Model.MaintenanceHistory.Any()) { <tr><td colspan="7" class="text-center text-muted py-4">No maintenance records.</td></tr> }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-warranties">
+        <div class="enterprise-card">
+            <div class="card-header-bar d-flex justify-content-between">
+                <h5 class="mb-0">Warranty Coverage</h5>
+                <a asp-controller="Warranties" asp-action="Create" class="btn btn-sm btn-outline-primary">Add Warranty</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Provider</th><th>Start</th><th>End</th><th>Status</th><th>Details</th></tr></thead>
+                    <tbody>
+                        @foreach (var w in Model.Warranties)
+                        {
+                            <tr>
+                                <td><a asp-controller="Warranties" asp-action="Details" asp-route-id="@w.Id">@w.Provider</a></td>
+                                <td>@w.StartDate.ToString("MMM d, yyyy")</td>
+                                <td>@w.EndDate.ToString("MMM d, yyyy")</td>
+                                <td><partial name="_WarrantyBadge" model="@w" /></td>
+                                <td class="text-muted small">@(w.CoverageDetails ?? "—")</td>
+                            </tr>
+                        }
+                        @if (!Model.Warranties.Any()) { <tr><td colspan="5" class="text-center text-muted py-4">No warranties on file.</td></tr> }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="tab-audit">
+        <div class="enterprise-card">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Description</th></tr></thead>
+                    <tbody>
+                        @foreach (var log in Model.AuditLogs)
+                        {
+                            <tr>
+                                <td class="text-nowrap">@log.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>@log.UserName</td>
+                                <td><span class="badge bg-secondary">@log.ActionType</span></td>
+                                <td class="small">@log.Description</td>
+                            </tr>
+                        }
+                        @if (!Model.AuditLogs.Any()) { <tr><td colspan="4" class="text-center text-muted py-4">No audit entries for this device.</td></tr> }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Devices</a>
+</div>

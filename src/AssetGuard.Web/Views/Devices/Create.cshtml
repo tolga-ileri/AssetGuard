@@ -1,0 +1,83 @@
+@model Device
+@{
+    ViewData["Title"] = ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "Add Device" : "Edit Device";
+    var deviceTypes = ViewBag.DeviceTypes as string[] ?? DeviceTypes.All;
+    var statuses = ViewBag.Statuses as string[] ?? DeviceStatus.All;
+}
+
+<div class="page-header">
+    <h1>@ViewData["Title"]</h1>
+</div>
+
+<div class="card table-card">
+    <div class="card-body">
+        <form asp-action="@ViewContext.RouteData.Values["action"]" method="post">
+            @Html.AntiForgeryToken()
+            @if (Model.Id > 0) { <input type="hidden" asp-for="Id" /> }
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="AssetTag" class="form-label"></label>
+                    <input asp-for="AssetTag" class="form-control" />
+                    <span asp-validation-for="AssetTag" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="SerialNumber" class="form-label"></label>
+                    <input asp-for="SerialNumber" class="form-control" />
+                    <span asp-validation-for="SerialNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="DeviceName" class="form-label"></label>
+                    <input asp-for="DeviceName" class="form-control" />
+                    <span asp-validation-for="DeviceName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="DeviceType" class="form-label"></label>
+                    <select asp-for="DeviceType" class="form-select">
+                        @foreach (var t in deviceTypes) { <option value="@t">@t</option> }
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Brand" class="form-label"></label>
+                    <input asp-for="Brand" class="form-control" />
+                    <span asp-validation-for="Brand" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Model" class="form-label"></label>
+                    <input asp-for="Model" class="form-control" />
+                    <span asp-validation-for="Model" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseDate" class="form-label"></label>
+                    <input asp-for="PurchaseDate" class="form-control" type="date" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="WarrantyEndDate" class="form-label"></label>
+                    <input asp-for="WarrantyEndDate" class="form-control" type="date" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Status" class="form-label"></label>
+                    <select asp-for="Status" class="form-select">
+                        @foreach (var s in statuses) { <option value="@s">@s</option> }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Location" class="form-label"></label>
+                    <input asp-for="Location" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label"></label>
+                    <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

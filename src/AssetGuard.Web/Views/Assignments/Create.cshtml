@@ -1,0 +1,21 @@
+@model Assignment
+@{
+    ViewData["Title"] = "New Assignment";
+    var devices = ViewBag.Devices as SelectList;
+    var employees = ViewBag.Employees as SelectList;
+}
+
+<div class="page-header"><h1>New Assignment</h1></div>
+<div class="card table-card"><div class="card-body">
+<form asp-action="Create" method="post">
+@Html.AntiForgeryToken()
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="row g-3">
+    <div class="col-md-6"><label asp-for="DeviceId" class="form-label"></label><select asp-for="DeviceId" asp-items="devices" class="form-select"><option value="">-- Select Device --</option></select><span asp-validation-for="DeviceId" class="text-danger small"></span></div>
+    <div class="col-md-6"><label asp-for="EmployeeId" class="form-label"></label><select asp-for="EmployeeId" asp-items="employees" class="form-select"><option value="">-- Select Employee --</option></select><span asp-validation-for="EmployeeId" class="text-danger small"></span></div>
+    <div class="col-md-6"><label asp-for="AssignedDate" class="form-label"></label><input asp-for="AssignedDate" class="form-control" type="date" /></div>
+    <div class="col-12"><label asp-for="AssignmentNote" class="form-label"></label><textarea asp-for="AssignmentNote" class="form-control" rows="2"></textarea></div>
+</div>
+<div class="mt-4"><button type="submit" class="btn btn-primary">Assign Device</button><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a></div>
+</form></div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

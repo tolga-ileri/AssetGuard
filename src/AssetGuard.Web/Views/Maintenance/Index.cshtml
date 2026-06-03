@@ -1,0 +1,108 @@
+@model MaintenanceIndexViewModel
+@{
+    ViewData["Title"] = "Maintenance Records";
+    var filter = Model.Filter;
+    ViewBag.Filter = filter;
+}
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Maintenance Records</h1>
+        <p class="text-muted mb-0 small">Track service history, costs, and upcoming maintenance</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Log Maintenance</a>
+</div>
+
+@if (Model.UpcomingMaintenance.Any())
+{
+    <div class="alert alert-info d-flex align-items-start gap-2 mb-4" role="alert">
+        <i class="bi bi-bell fs-5"></i>
+        <div class="flex-grow-1">
+            <strong>@Model.UpcomingMaintenance.Count upcoming maintenance</strong> scheduled within the next 30 days.
+            <ul class="mb-0 mt-2 small">
+                @foreach (var u in Model.UpcomingMaintenance.Take(3))
+                {
+                    <li><strong>@u.AssetTag</strong> — @u.DeviceName, due @u.NextMaintenanceDate?.ToString("MMM d, yyyy") (@u.MaintenanceType)</li>
+                }
+                @if (Model.UpcomingMaintenance.Count > 3)
+                {
+                    <li class="text-muted">...and @(Model.UpcomingMaintenance.Count - 3) more</li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-10">
+            <label class="form-label small text-muted">Search</label>
+            <input type="text" name="searchTerm" value="@filter.SearchTerm" class="form-control" placeholder="Device, asset tag, type, or performer..." />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Search</button>
+        </div>
+    </form>
+</div>
+
+<div class="card table-card">
+    @if (Model.Records.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Asset Tag</th>
+                        <th>Device</th>
+                        <th>Type</th>
+                        <th>Cost</th>
+                        <th>Performed By</th>
+                        <th>Next Due</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Records.Items)
+                    {
+                        var isUpcoming = item.NextMaintenanceDate.HasValue && item.NextMaintenanceDate.Value.Date <= DateTime.Today.AddDays(30) && item.NextMaintenanceDate.Value.Date >= DateTime.Today;
+                        <tr class="@(isUpcoming ? "table-info" : "")">
+                            <td>@item.MaintenanceDate.ToString("MMM d, yyyy")</td>
+                            <td><strong>@item.AssetTag</strong></td>
+                            <td><a asp-controller="Devices" asp-action="Details" asp-route-id="@item.DeviceId">@item.DeviceName</a></td>
+                            <td><span class="badge bg-info text-dark">@item.MaintenanceType</span></td>
+                            <td>@item.Cost.ToString("C")</td>
+                            <td>@item.PerformedBy</td>
+                            <td>
+                                @if (item.NextMaintenanceDate.HasValue)
+                                {
+                                    @item.NextMaintenanceDate.Value.ToString("MMM d, yyyy")
+                                    if (isUpcoming)
+                                    {
+                                        <span class="badge bg-warning text-dark ms-1">Due Soon</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <text>—</text>
+                                }
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-tools"}, {"EmptyTitle","No maintenance records found"}, {"EmptyActionUrl", Url.Action("Create")}, {"EmptyActionText","Log Maintenance"} }' />
+        </div>
+    }
+</div>
+<partial name="_Pagination" model="@Model.Records" />

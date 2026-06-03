@@ -1,0 +1,88 @@
+@model PagedResult<Device>
+@{
+    ViewData["Title"] = "Devices";
+    var filter = ViewBag.Filter as ListFilterViewModel ?? new ListFilterViewModel();
+    var deviceTypes = ViewBag.DeviceTypes as string[] ?? [];
+    var statuses = ViewBag.Statuses as string[] ?? [];
+}
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Devices</h1>
+        <p class="text-muted mb-0 small">Corporate IT asset inventory</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Device</a>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small text-muted">Search</label>
+            <input type="text" name="searchTerm" value="@filter.SearchTerm" class="form-control" placeholder="Asset tag, serial, name, brand..." />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted">Status</label>
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                @foreach (var s in statuses) { <option value="@s" selected="@(filter.Status == s)">@s</option> }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted">Device Type</label>
+            <select name="deviceType" class="form-select">
+                <option value="">All Types</option>
+                @foreach (var t in deviceTypes) { <option value="@t" selected="@(filter.DeviceType == t)">@t</option> }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="card table-card">
+    @if (Model.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Asset Tag</th>
+                        <th>Device Name</th>
+                        <th>Type</th>
+                        <th>Brand / Model</th>
+                        <th>Status</th>
+                        <th>Location</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td><strong>@item.AssetTag</strong></td>
+                            <td>@item.DeviceName</td>
+                            <td><span class="badge bg-light text-dark border">@item.DeviceType</span></td>
+                            <td>@item.Brand @item.Model</td>
+                            <td><partial name="_StatusBadge" model="@item.Status" /></td>
+                            <td>@(item.Location ?? "—")</td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Details"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-laptop"}, {"EmptyTitle","No devices found"}, {"EmptyMessage","Try adjusting your filters or add a new device."}, {"EmptyActionUrl", Url.Action("Create")}, {"EmptyActionText","Add Device"} }' />
+        </div>
+    }
+</div>
+
+<partial name="_Pagination" model="@Model" />

@@ -1,0 +1,28 @@
+@model User
+@{ ViewData["Title"] = "Deactivate User"; }
+
+<div class="page-header"><h1>Deactivate User</h1></div>
+
+<div class="enterprise-card border-warning">
+    <div class="card-body">
+        <div class="alert alert-warning mb-4">
+            <i class="bi bi-exclamation-triangle"></i>
+            Deactivating <strong>@Model.UserName</strong> will prevent login. The account record is preserved for audit purposes.
+        </div>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Full Name</dt><dd class="col-sm-9">@Model.FullName</dd>
+            <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Email</dd>
+            <dt class="col-sm-3">Role</dt><dd class="col-sm-9">@Model.Role</dd>
+        </dl>
+        <form asp-action="Deactivate" method="post" class="mt-4"
+              data-confirm="Deactivate user @Model.UserName? They will no longer be able to sign in."
+              data-confirm-title="Deactivate User"
+              data-confirm-class="btn btn-warning"
+              data-confirm-btn="Deactivate">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-warning"><i class="bi bi-person-x"></i> Deactivate</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

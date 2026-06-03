@@ -1,0 +1,15 @@
+@model string
+
+@{
+    var cssClass = Model switch
+    {
+        "Available" => "badge-available",
+        "Assigned" => "badge-assigned",
+        "In Maintenance" => "badge-maintenance",
+        "Retired" => "badge-retired",
+        "Active" => "badge-active",
+        "Returned" => "badge-returned",
+        _ => "bg-secondary"
+    };
+}
+<span class="badge @cssClass">@Model</span>

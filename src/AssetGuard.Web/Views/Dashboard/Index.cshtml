@@ -1,0 +1,243 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var s = Model.Stats;
+    var a = Model.Analytics;
+}
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Operations Dashboard</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0"><li class="breadcrumb-item active">IT Asset Overview</li></ol>
+        </nav>
+    </div>
+    <span class="text-muted small"><i class="bi bi-calendar3"></i> @DateTime.Now.ToString("dddd, MMMM d, yyyy")</span>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="enterprise-card stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-laptop"></i></div>
+                <div><div class="stat-value">@s.TotalDevices</div><div class="stat-label">Total Devices</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="enterprise-card stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon bg-info bg-opacity-10 text-info"><i class="bi bi-person-check"></i></div>
+                <div><div class="stat-value">@s.AssignedDevices</div><div class="stat-label">Assigned</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="enterprise-card stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-people"></i></div>
+                <div><div class="stat-value">@s.TotalEmployees</div><div class="stat-label">Active Employees</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="enterprise-card stat-card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-arrow-left-right"></i></div>
+                <div><div class="stat-value">@s.ActiveAssignments</div><div class="stat-label">Active Assignments</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="enterprise-card stat-card h-100 border-accent border-accent-success">
+            <div class="card-body"><div class="stat-label">Available</div><div class="stat-value text-success">@s.AvailableDevices</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="enterprise-card stat-card h-100 border-accent border-accent-warning">
+            <div class="card-body"><div class="stat-label">In Maintenance</div><div class="stat-value text-warning">@s.InMaintenanceDevices</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="enterprise-card stat-card h-100 border-accent border-accent-danger">
+            <div class="card-body"><div class="stat-label">Expired Warranties</div><div class="stat-value text-danger">@s.ExpiredWarranties</div></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="enterprise-card stat-card h-100 border-accent border-accent-info">
+            <div class="card-body"><div class="stat-label">Maint. Cost (Total)</div><div class="stat-value">@s.TotalMaintenanceCost.ToString("C0")</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar"><i class="bi bi-pie-chart"></i> Device Status Distribution</div>
+            <div class="card-body"><div class="chart-container"><canvas id="chartByStatus"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar"><i class="bi bi-bar-chart"></i> Devices by Type</div>
+            <div class="card-body"><div class="chart-container"><canvas id="chartByType"></canvas></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar"><i class="bi bi-building"></i> Devices by Department (Active Assignments)</div>
+            <div class="card-body"><div class="chart-container"><canvas id="chartByDepartment"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar"><i class="bi bi-currency-dollar"></i> Monthly Maintenance Costs</div>
+            <div class="card-body"><div class="chart-container"><canvas id="chartMaintCost"></canvas></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar"><i class="bi bi-graph-up"></i> Assignment Trends (6 months)</div>
+            <div class="card-body"><div class="chart-container"><canvas id="chartAssignments"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar"><i class="bi bi-shield-exclamation"></i> Warranty Expiration Forecast</div>
+            <div class="card-body"><div class="chart-container"><canvas id="chartWarrantyTrend"></canvas></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="enterprise-card">
+            <div class="card-header-bar d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-exclamation-triangle text-warning"></i> Warranties Expiring Soon</span>
+                <a asp-controller="Warranties" asp-action="Index" asp-route-status="Expiring30" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead><tr><th>Asset Tag</th><th>Device</th><th>Provider</th><th>Expires</th><th>Days</th></tr></thead>
+                    <tbody>
+                        @foreach (var w in Model.ExpiringWarranties.Take(5))
+                        {
+                            <tr class="@(w.DaysRemaining <= 14 ? "table-warning" : "")">
+                                <td>@w.AssetTag</td><td>@w.DeviceName</td><td>@w.Provider</td>
+                                <td>@w.EndDate.ToString("MMM d, yyyy")</td>
+                                <td><span class="badge bg-warning text-dark">@w.DaysRemaining</span></td>
+                            </tr>
+                        }
+                        @if (!Model.ExpiringWarranties.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-3">No warranties expiring in the next 30 days.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="enterprise-card">
+            <div class="card-header-bar d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-tools text-info"></i> Upcoming Maintenance</span>
+                <a asp-controller="Maintenance" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead><tr><th>Asset Tag</th><th>Device</th><th>Type</th><th>Due Date</th><th>Performed By</th></tr></thead>
+                    <tbody>
+                        @foreach (var m in Model.UpcomingMaintenance.Take(5))
+                        {
+                            <tr>
+                                <td>@m.AssetTag</td><td>@m.DeviceName</td>
+                                <td><span class="badge bg-info text-dark">@m.MaintenanceType</span></td>
+                                <td>@m.NextMaintenanceDate?.ToString("MMM d, yyyy")</td>
+                                <td>@m.PerformedBy</td>
+                            </tr>
+                        }
+                        @if (!Model.UpcomingMaintenance.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-3">No upcoming maintenance scheduled.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const colors = ['#1e3a5f','#3182ce','#38a169','#d69e2e','#e53e3e','#805ad5','#319795','#718096'];
+    const chartDefaults = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } };
+    const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+    const textColor = isDark ? '#cbd5e0' : '#4a5568';
+
+    const typeLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DevicesByType.Select(x => x.Label)));
+    const typeData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DevicesByType.Select(x => x.Value)));
+    const statusLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DevicesByStatus.Select(x => x.Label)));
+    const statusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DevicesByStatus.Select(x => x.Value)));
+    const deptLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.DevicesByDepartment.Select(x => x.Label)));
+    const deptData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.DevicesByDepartment.Select(x => x.Value)));
+    const costLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.MonthlyMaintenanceCosts.Select(x => x.Month)));
+    const costData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.MonthlyMaintenanceCosts.Select(x => x.Amount)));
+    const assignLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.AssignmentTrends.Select(x => x.Month)));
+    const assignData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.AssignmentTrends.Select(x => x.Count)));
+    const warrantyLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.WarrantyExpirationTrends.Select(x => x.Month)));
+    const warrantyData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(a.WarrantyExpirationTrends.Select(x => x.Count)));
+
+    if (statusLabels.length) {
+        new Chart(document.getElementById('chartByStatus'), {
+            type: 'doughnut',
+            data: { labels: statusLabels, datasets: [{ data: statusData, backgroundColor: colors.slice(0, statusLabels.length) }] },
+            options: chartDefaults
+        });
+    }
+    if (typeLabels.length) {
+        new Chart(document.getElementById('chartByType'), {
+            type: 'bar',
+            data: { labels: typeLabels, datasets: [{ label: 'Devices', data: typeData, backgroundColor: colors.slice(0, typeLabels.length) }] },
+            options: { ...chartDefaults, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } }, x: { ticks: { color: textColor }, grid: { color: gridColor } } } }
+        });
+    }
+    if (deptLabels.length) {
+        new Chart(document.getElementById('chartByDepartment'), {
+            type: 'bar',
+            data: { labels: deptLabels, datasets: [{ label: 'Assigned Devices', data: deptData, backgroundColor: '#3182ce' }] },
+            options: { ...chartDefaults, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } }, x: { ticks: { color: textColor }, grid: { color: gridColor } } } }
+        });
+    }
+    if (costLabels.length) {
+        new Chart(document.getElementById('chartMaintCost'), {
+            type: 'line',
+            data: { labels: costLabels, datasets: [{ label: 'Cost ($)', data: costData, borderColor: '#d69e2e', backgroundColor: 'rgba(214,158,46,0.15)', fill: true, tension: 0.3 }] },
+            options: { ...chartDefaults, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } }, x: { ticks: { color: textColor }, grid: { color: gridColor } } } }
+        });
+    }
+    if (assignLabels.length) {
+        new Chart(document.getElementById('chartAssignments'), {
+            type: 'line',
+            data: { labels: assignLabels, datasets: [{ label: 'Assignments', data: assignData, borderColor: '#3182ce', backgroundColor: 'rgba(49,130,206,0.12)', fill: true, tension: 0.3 }] },
+            options: { ...chartDefaults, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } }, x: { ticks: { color: textColor }, grid: { color: gridColor } } } }
+        });
+    }
+    if (warrantyLabels.length) {
+        new Chart(document.getElementById('chartWarrantyTrend'), {
+            type: 'bar',
+            data: { labels: warrantyLabels, datasets: [{ label: 'Expiring', data: warrantyData, backgroundColor: '#e53e3e' }] },
+            options: { ...chartDefaults, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor }, grid: { color: gridColor } }, x: { ticks: { color: textColor }, grid: { color: gridColor } } } }
+        });
+    }
+</script>
+}

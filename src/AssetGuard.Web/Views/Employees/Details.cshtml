@@ -1,0 +1,81 @@
+@model EmployeeDetailViewModel
+@{
+    ViewData["Title"] = Model.Employee.FullName;
+    var e = Model.Employee;
+}
+
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+            <h1 class="mb-0">@e.FullName</h1>
+            @if (e.IsActive) { <span class="badge badge-active">Active</span> }
+            else { <span class="badge bg-secondary">Inactive</span> }
+        </div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Employees</a></li>
+                <li class="breadcrumb-item active">Details</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        @if (e.IsActive)
+        {
+            <a asp-action="Edit" asp-route-id="@e.Id" class="btn btn-primary btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+            <a asp-controller="Assignments" asp-action="Create" class="btn btn-outline-primary btn-sm"><i class="bi bi-arrow-left-right"></i> Assign Device</a>
+            <a asp-action="Deactivate" asp-route-id="@e.Id" class="btn btn-outline-warning btn-sm"><i class="bi bi-person-x"></i> Deactivate</a>
+        }
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-5">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar"><h5 class="mb-0"><i class="bi bi-person-badge"></i> Employee Information</h5></div>
+            <div class="card-body">
+                <div class="info-field mb-3"><label>Department</label><div class="info-value"><span class="badge bg-light text-dark border">@e.Department</span></div></div>
+                <div class="info-field mb-3"><label>Position</label><div class="info-value">@e.Position</div></div>
+                <div class="info-field mb-3"><label>Email</label><div class="info-value"><a href="mailto:@e.Email">@e.Email</a></div></div>
+                <div class="info-field mb-3"><label>Phone</label><div class="info-value">@(e.Phone ?? "—")</div></div>
+                <div class="info-field"><label>Joined</label><div class="info-value">@e.CreatedAt.ToString("MMM d, yyyy")</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="enterprise-card h-100">
+            <div class="card-header-bar"><h5 class="mb-0"><i class="bi bi-clock-history"></i> Activity Timeline</h5></div>
+            <div class="card-body">
+                <partial name="_ActivityTimeline" model="Model.Timeline" view-data='new ViewDataDictionary(ViewData) { {"TimelineEmptyMessage","No assignment or audit activity for this employee."} }' />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="enterprise-card">
+    <div class="card-header-bar"><h5 class="mb-0"><i class="bi bi-laptop"></i> Asset Assignment History</h5></div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Asset Tag</th><th>Device</th><th>Assigned</th><th>Returned</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var a in Model.AssignmentHistory)
+                {
+                    <tr>
+                        <td><strong>@a.AssetTag</strong></td>
+                        <td><a asp-controller="Devices" asp-action="Details" asp-route-id="@a.DeviceId">@a.DeviceName</a></td>
+                        <td>@a.AssignedDate.ToString("MMM d, yyyy")</td>
+                        <td>@(a.ReturnDate?.ToString("MMM d, yyyy") ?? "—")</td>
+                        <td><partial name="_StatusBadge" model="@a.Status" /></td>
+                        <td class="text-end">
+                            @if (a.Status == AssignmentStatus.Active)
+                            {
+                                <a asp-controller="Assignments" asp-action="Return" asp-route-id="@a.Id" class="btn btn-sm btn-outline-warning">Return</a>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.AssignmentHistory.Any()) { <tr><td colspan="6" class="text-center text-muted py-4">No devices assigned.</td></tr> }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer-bar"><a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back to Employees</a></div>
+</div>

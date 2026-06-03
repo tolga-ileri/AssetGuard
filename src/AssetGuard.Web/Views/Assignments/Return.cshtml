@@ -1,0 +1,19 @@
+@model ReturnAssignmentViewModel
+@{ ViewData["Title"] = "Return Asset"; }
+<div class="page-header"><h1>Return Asset</h1></div>
+<div class="card table-card"><div class="card-body">
+<form asp-action="Return" method="post"
+      data-confirm="Return this device from the employee? The device will be marked as Available."
+      data-confirm-title="Return Device"
+      data-confirm-class="btn btn-warning"
+      data-confirm-btn="Confirm Return">
+@Html.AntiForgeryToken()
+<input type="hidden" asp-for="Id" />
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="row g-3">
+    <div class="col-md-6"><label asp-for="ReturnDate" class="form-label"></label><input asp-for="ReturnDate" class="form-control" type="date" /></div>
+    <div class="col-12"><label asp-for="ReturnNote" class="form-label"></label><textarea asp-for="ReturnNote" class="form-control" rows="3"></textarea></div>
+</div>
+<div class="mt-4"><button type="submit" class="btn btn-warning">Confirm Return</button><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a></div>
+</form></div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

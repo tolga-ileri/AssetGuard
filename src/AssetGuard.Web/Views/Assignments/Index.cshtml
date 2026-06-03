@@ -1,0 +1,93 @@
+@model PagedResult<Assignment>
+@{
+    ViewData["Title"] = ViewBag.IsHistory == true ? "Assignment History" : "Asset Assignments";
+    var filter = ViewBag.Filter as ListFilterViewModel ?? new ListFilterViewModel();
+    var statuses = ViewBag.Statuses as string[] ?? AssignmentStatus.All;
+    var isHistory = ViewBag.IsHistory == true;
+}
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>@(isHistory ? "Assignment History" : "Asset Assignments")</h1>
+        <p class="text-muted mb-0 small">Assign devices to employees and track full assignment lifecycle</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (!isHistory)
+        {
+            <a asp-action="History" class="btn btn-outline-secondary"><i class="bi bi-clock-history"></i> Full History</a>
+            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Assignment</a>
+        }
+        else
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Active View</a>
+            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Assignment</a>
+        }
+    </div>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label small text-muted">Search</label>
+            <input type="text" name="searchTerm" value="@filter.SearchTerm" class="form-control" placeholder="Device name, asset tag, or employee..." />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small text-muted">Status</label>
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                @foreach (var s in statuses) { <option value="@s" selected="@(filter.Status == s)">@s</option> }
+            </select>
+        </div>
+        <div class="col-md-2"><button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filter</button></div>
+    </form>
+</div>
+
+<div class="card table-card">
+    @if (Model.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Asset Tag</th>
+                        <th>Device</th>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Assigned Date</th>
+                        <th>Return Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td><strong>@item.AssetTag</strong></td>
+                            <td><a asp-controller="Devices" asp-action="Details" asp-route-id="@item.DeviceId">@item.DeviceName</a></td>
+                            <td><a asp-controller="Employees" asp-action="Details" asp-route-id="@item.EmployeeId">@item.EmployeeName</a></td>
+                            <td><span class="badge bg-light text-dark border">@item.Department</span></td>
+                            <td>@item.AssignedDate.ToString("MMM d, yyyy")</td>
+                            <td>@(item.ReturnDate?.ToString("MMM d, yyyy") ?? "—")</td>
+                            <td><partial name="_StatusBadge" model="@item.Status" /></td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Details"><i class="bi bi-eye"></i></a>
+                                @if (item.Status == AssignmentStatus.Active)
+                                {
+                                    <a asp-action="Return" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Return Device"><i class="bi bi-arrow-return-left"></i> Return</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-arrow-left-right"}, {"EmptyTitle","No assignments found"}, {"EmptyActionUrl", Url.Action("Create")}, {"EmptyActionText","New Assignment"} }' />
+        </div>
+    }
+</div>
+<partial name="_Pagination" model="@Model" />

@@ -1,0 +1,40 @@
+@model WarrantyExpirationReportViewModel
+@{ ViewData["Title"] = "Warranty Expiration Report"; ViewBag.ExportAction = "ExportWarrantyExpiration"; ViewBag.ShowDepartment = false; ViewBag.ShowWarrantyStatus = true; }
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Warranty Expiration Report</h1>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0"><li class="breadcrumb-item"><a asp-action="Index">Reports</a></li><li class="breadcrumb-item active">Warranty Expiration</li></ol></nav>
+    </div>
+    <span class="badge bg-light text-dark border">@Model.Rows.Count records</span>
+</div>
+
+<partial name="_ReportFilter" model="Model.Filter" />
+
+<div class="card table-card">
+    @if (Model.Rows.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Asset Tag</th><th>Device</th><th>Type</th><th>Provider</th><th>Start</th><th>End</th><th>Days Left</th><th>Status</th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        <tr class="@(r.WarrantyStatus == "Expiring Soon" ? "table-warning" : r.WarrantyStatus == "Expired" ? "table-secondary" : "")">
+                            <td><strong>@r.AssetTag</strong></td><td>@r.DeviceName</td><td>@r.DeviceType</td>
+                            <td>@r.Provider</td>
+                            <td>@r.StartDate.ToString("MMM d, yyyy")</td><td>@r.EndDate.ToString("MMM d, yyyy")</td>
+                            <td>@r.DaysRemaining</td>
+                            <td>
+                                @if (r.WarrantyStatus == "Active") { <span class="badge badge-active">Active</span> }
+                                else if (r.WarrantyStatus == "Expiring Soon") { <span class="badge bg-warning text-dark">Expiring Soon</span> }
+                                else { <span class="badge bg-secondary">Expired</span> }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else { <div class="card-body"><partial name="_EmptyState" /></div> }
+</div>

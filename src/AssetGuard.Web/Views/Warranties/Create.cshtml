@@ -1,0 +1,23 @@
+@model Warranty
+@{
+    ViewData["Title"] = ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "Add Warranty" : "Edit Warranty";
+    var devices = ViewBag.Devices as SelectList;
+}
+
+<div class="page-header"><h1>@ViewData["Title"]</h1></div>
+<div class="card table-card"><div class="card-body">
+<form asp-action="@ViewContext.RouteData.Values["action"]" method="post">
+@Html.AntiForgeryToken()
+@if (Model.Id > 0) { <input type="hidden" asp-for="Id" /> }
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="row g-3">
+    <div class="col-md-6"><label asp-for="DeviceId" class="form-label"></label><select asp-for="DeviceId" asp-items="devices" class="form-select"><option value="">-- Select Device --</option></select></div>
+    <div class="col-md-6"><label asp-for="Provider" class="form-label"></label><input asp-for="Provider" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="StartDate" class="form-label"></label><input asp-for="StartDate" class="form-control" type="date" /></div>
+    <div class="col-md-4"><label asp-for="EndDate" class="form-label"></label><input asp-for="EndDate" class="form-control" type="date" /></div>
+    <div class="col-md-4"><div class="form-check mt-4"><input asp-for="IsActive" class="form-check-input" /><label asp-for="IsActive" class="form-check-label"></label></div></div>
+    <div class="col-12"><label asp-for="CoverageDetails" class="form-label"></label><textarea asp-for="CoverageDetails" class="form-control" rows="3"></textarea></div>
+</div>
+<div class="mt-4"><button type="submit" class="btn btn-primary">Save</button><a asp-action="Index" class="btn btn-outline-secondary">Cancel</a></div>
+</form></div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

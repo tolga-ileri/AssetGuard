@@ -1,0 +1,81 @@
+@model PagedResult<Employee>
+@{
+    ViewData["Title"] = "Employees";
+    var filter = ViewBag.Filter as ListFilterViewModel ?? new ListFilterViewModel();
+    var departments = ViewBag.Departments as IReadOnlyList<string> ?? [];
+}
+
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+        <h1>Employees</h1>
+        <p class="text-muted mb-0 small">Manage staff and track device assignments</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add Employee</a>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small text-muted">Search</label>
+            <input type="text" name="searchTerm" value="@filter.SearchTerm" class="form-control" placeholder="Name or email..." />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted">Department</label>
+            <select name="department" class="form-select">
+                <option value="">All Departments</option>
+                @foreach (var d in departments) { <option value="@d" selected="@(filter.Department == d)">@d</option> }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted">Status</label>
+            <select name="status" class="form-select">
+                <option value="">All</option>
+                <option value="Active" selected="@(filter.Status == "Active")">Active</option>
+                <option value="Inactive" selected="@(filter.Status == "Inactive")">Inactive</option>
+            </select>
+        </div>
+        <div class="col-md-2"><button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filter</button></div>
+    </form>
+</div>
+
+<div class="card table-card">
+    @if (Model.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Name</th><th>Department</th><th>Position</th><th>Email</th><th>Phone</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr class="@(!item.IsActive ? "table-secondary" : "")">
+                            <td><strong>@item.FullName</strong></td>
+                            <td><span class="badge bg-light text-dark border">@item.Department</span></td>
+                            <td>@item.Position</td>
+                            <td>@item.Email</td>
+                            <td>@(item.Phone ?? "—")</td>
+                            <td>
+                                @if (item.IsActive) { <span class="badge badge-active">Active</span> }
+                                else { <span class="badge bg-secondary">Inactive</span> }
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Details"><i class="bi bi-eye"></i></a>
+                                @if (item.IsActive)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Deactivate" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Deactivate"><i class="bi bi-person-x"></i></a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            <partial name="_EmptyState" view-data='new ViewDataDictionary(ViewData) { {"EmptyIcon","bi-people"}, {"EmptyTitle","No employees found"}, {"EmptyActionUrl", Url.Action("Create")}, {"EmptyActionText","Add Employee"} }' />
+        </div>
+    }
+</div>
+<partial name="_Pagination" model="@Model" />

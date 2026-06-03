@@ -1,0 +1,27 @@
+@model Employee
+@{ ViewData["Title"] = "Deactivate Employee"; }
+
+<div class="page-header"><h1>Deactivate Employee</h1></div>
+
+<div class="card table-card border-warning">
+    <div class="card-body">
+        <div class="alert alert-warning mb-4">
+            <i class="bi bi-exclamation-triangle"></i>
+            Deactivating <strong>@Model.FullName</strong> preserves all assignment history. The employee will no longer appear in active lists.
+        </div>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@Model.Email</dd>
+            <dt class="col-sm-3">Department</dt><dd class="col-sm-9">@Model.Department</dd>
+        </dl>
+        <form asp-action="Deactivate" method="post" class="mt-4"
+              data-confirm="Deactivate @Model.FullName? They can be reactivated by editing their profile."
+              data-confirm-title="Deactivate Employee"
+              data-confirm-class="btn btn-warning"
+              data-confirm-btn="Deactivate">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-warning"><i class="bi bi-person-x"></i> Deactivate</button>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

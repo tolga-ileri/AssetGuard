@@ -1,0 +1,24 @@
+@model AssetGuard.Core.Models.Warranty
+@{
+    var today = DateTime.Today;
+    var daysLeft = (Model.EndDate.Date - today).Days;
+    string badgeClass;
+    string label;
+
+    if (!Model.IsActive || daysLeft < 0)
+    {
+        badgeClass = "bg-secondary";
+        label = "Expired";
+    }
+    else if (daysLeft <= 30)
+    {
+        badgeClass = "bg-warning text-dark";
+        label = $"Expiring ({daysLeft}d)";
+    }
+    else
+    {
+        badgeClass = "badge-active";
+        label = "Active";
+    }
+}
+<span class="badge @badgeClass">@label</span>
