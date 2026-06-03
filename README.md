@@ -113,8 +113,6 @@ Audit log viewer with filters for user, entity, and action type.
 
 ![Audit Logs](docs/screenshots/audit-logs.png)
 
-> Replace placeholder images in `docs/screenshots/` with your own captures before publishing. See [docs/screenshots/README.md](docs/screenshots/README.md) for the recommended list.
-
 ---
 
 ## Local Setup
